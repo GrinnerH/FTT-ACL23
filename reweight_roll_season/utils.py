@@ -172,7 +172,7 @@ def get_data_paths(args):
     """ Get paths for all
     """
     season_list = [i for i in range(1, 5)]
-    data_dir = os.path.join('./roll_seasonal_data', args.data_name)
+    data_dir = os.path.join('./reweight_roll_season/roll_seasonal_data', args.data_name)
     data_dirs = [os.path.join(data_dir, 'roll_season_'+str(season)) for season in season_list]
     train_data_paths = [os.path.join(data_dir, 'roll_season_'+str(season), 'train.json') for season in season_list]
     dataset_name = args.data_name + \
@@ -180,7 +180,7 @@ def get_data_paths(args):
         '_prophet-' + str(args.predict_method) + '-' + str(args.predict_threshold) + \
         '_' + str(args.reweight_method) + '-' + str(args.reweight_threshold) + '-' + str(args.thres_low) + '-' + str(args.thres_high)
     print('dataset_name:', dataset_name)
-    user_save_dirs = [os.path.join('./roll_seasonal_user_data/', dataset_name, 'roll_season_'+str(season)) for season in season_list]
+    user_save_dirs = [os.path.join('./reweight_roll_season/roll_seasonal_user_data/', dataset_name, 'roll_season_'+str(season)) for season in season_list]
     cluster_name = args.embedding_type + '_' + str(args.cluster_threshold)
     for dir in user_save_dirs:
         if not os.path.exists(dir):
