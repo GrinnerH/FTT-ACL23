@@ -7,7 +7,9 @@ import numpy as np
 import pickle
 from sentence_transformers import models, SentenceTransformer
 from utils import get_data_paths
+import logging
 
+logging.basicConfig(level=logging.info, format='%(asctime)s - %(message)s')
 
 def main(args):
     """ Obtain News Representation With Sentence-BERT
@@ -22,6 +24,7 @@ def main(args):
     # ========== roll seasonal single pass ==========
     for index in tqdm(range(4)):
         print('---------- season {} ----------'.format(index+1))
+        logging.info('---------- season {} ----------'.format(index+1))
         online_train_path = online_train_paths[index]
         user_save_dir = user_save_dirs[index]
         online_train_df = pd.read_json(online_train_path)
@@ -53,9 +56,12 @@ def main(args):
             pkl_data = pickle.load(handle)
 
         print('embedding len:', len(pkl_data))
+        logging.info('embedding len: {}'.format(len(pkl_data)))
         for i, val in pkl_data.items():
             print('↓ embedding dict sample ↓')
+            logging.info('↓ embedding dict sample ↓')
             print('id:', i, ' single embedding shape:', val.shape)
+            logging.info('id: {} single embedding shape: {}'.format(i, val.shape))
             break
 
 
