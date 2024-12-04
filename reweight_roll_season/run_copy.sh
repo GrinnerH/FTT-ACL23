@@ -43,21 +43,8 @@ predict_method='bsr'
 #     --thres_low ${thres_low} \
 #     --thres_high ${thres_high}
 
-# S3: Temporal Distribution Modeling and Forecasting
-python reweight_roll_season/predict_freq.py \
-    --data_name ${data_name} \
-    --embedding_type ${embedding_type} \
-    --cluster_threshold ${cluster_threshold} \
-    --predict_method ${predict_method} \
-    --predict_threshold ${predict_threshold} \
-    --reweight_method ${reweight_method} \
-    --reweight_threshold ${reweight_threshold} \
-    --year_type ${year_type} \
-    --thres_low ${thres_low} \
-    --thres_high ${thres_high}
-
-# # S4: Forecast-Based Adaptation
-# python reweight_roll_season/weight_score_cal.py \
+# # S3: Temporal Distribution Modeling and Forecasting
+# python reweight_roll_season/predict_freq.py \
 #     --data_name ${data_name} \
 #     --embedding_type ${embedding_type} \
 #     --cluster_threshold ${cluster_threshold} \
@@ -65,5 +52,18 @@ python reweight_roll_season/predict_freq.py \
 #     --predict_threshold ${predict_threshold} \
 #     --reweight_method ${reweight_method} \
 #     --reweight_threshold ${reweight_threshold} \
+#     --year_type ${year_type} \
 #     --thres_low ${thres_low} \
 #     --thres_high ${thres_high}
+
+# S4: Forecast-Based Adaptation
+python reweight_roll_season/weight_score_cal.py \
+    --data_name ${data_name} \
+    --embedding_type ${embedding_type} \
+    --cluster_threshold ${cluster_threshold} \
+    --predict_method ${predict_method} \
+    --predict_threshold ${predict_threshold} \
+    --reweight_method ${reweight_method} \
+    --reweight_threshold ${reweight_threshold} \
+    --thres_low ${thres_low} \
+    --thres_high ${thres_high}

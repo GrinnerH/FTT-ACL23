@@ -46,7 +46,7 @@ def weight_to_json_y_s(online_data_dir, res_path, weight_path, save_dir='./', ma
     val_df = pd.read_json(val_data_path)
     test_df = pd.read_json(test_data_path)
 
-    # ----- filtering based on train_mae_ratio -----
+    # ----- filtering based on train_mae_ratio -----过滤
     filter_weight_df = weight_df[weight_df['train_mae_ratio'] < mae_ratio_threshold]
     filter_count = filter_weight_df.sum()['count']
     cluster_count = weight_df.sum()['count']

@@ -30,6 +30,6 @@ python main.py \
     --model_name bert \
     --root_path reweight_roll_season/roll_seasonal_user_data/roll_online_bf20_demo_SBERT-sg-0.6_prophet-bsr-3_sw-5.0-0.5-2.0 \
     --bert_path /home/robot/wwh/Huggingface/hub/models--hfl--chinese-bert-wwm-ext \
-    --data_name adjusted_data_name \
+    --data_name roll_online_bf20_demo_SBERT-sg-0.6_prophet-bsr-3_sw-5.0-0.5-2.0 \
     --data_type roll_online \
     --split_level seasonal
