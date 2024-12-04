@@ -47,6 +47,7 @@ def weight_to_json_y_s(online_data_dir, res_path, weight_path, save_dir='./', ma
     test_df = pd.read_json(test_data_path)
 
     # ----- filtering based on train_mae_ratio -----过滤
+    print("weight_df.columns",weight_df.columns)
     filter_weight_df = weight_df[weight_df['train_mae_ratio'] < mae_ratio_threshold]
     filter_count = filter_weight_df.sum()['count']
     cluster_count = weight_df.sum()['count']
@@ -116,7 +117,7 @@ def predict_data_prepare_y_s(online_data_path, user_save_dir, cluster_res_path, 
     global_year_season_counter = dict()
     for time in year_season_keys:
         global_year_season_counter[time] = 0
-        
+   
     for index in tqdm(range(online_df.shape[0])):
         cur_data = online_df.iloc[index]
         cur_y_s = cur_data['year_season']
@@ -125,7 +126,6 @@ def predict_data_prepare_y_s(online_data_path, user_save_dir, cluster_res_path, 
         except:
             print('Warning! Year_season {} not in the train years setting!'.format(cur_y_s))
             continue
-
     # ----- read in data and perform cluster filtering -----
     cur_res = pd.read_json(cluster_res_path)
     # only process samples from clusters exceeding remark_threshold 
@@ -149,7 +149,13 @@ def predict_data_prepare_y_s(online_data_path, user_save_dir, cluster_res_path, 
                 continue
 
         for year_season in year_season_keys:
-            year_season_freq[year_season] = year_season_counter[year_season] / global_year_season_counter[year_season]
+            # @@
+            if(global_year_season_counter[year_season] == 0):
+                year_season_freq[year_season] = 0
+            else:
+                year_season_freq[year_season] = year_season_counter[year_season] / global_year_season_counter[year_season]
+            
+            
 
         cur_dict = {}
         cur_dict['cluster_id'] = cur_cluster['cluster_id']

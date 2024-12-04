@@ -121,9 +121,11 @@ def main(args):
         print('↓ global reweight show ↓')
         weights_view = pd.DataFrame(global_weights)
         percent_list = [i*5 / 100 for i in range(0, 21)]
-        print(weights_view.describe(percentiles=percent_list))
+        # print(weights_view.describe(percentiles=percent_list))
 
-        pred_df['test_pred'] = test_pred_pool
+        ['test_pred'] = test_pred_pool
+        print("pred_df.columns",pred_df.columns)
+
         pred_df = pred_df.drop('train_pred', axis=1)
 
         pred_save_path = os.path.join(user_save_dir, cluster_name + '_weight.json')
