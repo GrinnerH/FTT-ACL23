@@ -10,7 +10,8 @@ from collections import Counter
 import math
 
 from utils import weight_to_json_y_s, get_data_paths
-
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', filename='weight_out.log', filemode='a')
 
 def get_reweight_func(reweight_method):
     """ Return The Specified Weighting Func
@@ -47,6 +48,7 @@ def main(args):
     mae_ratio_threshold = args.reweight_threshold
     thres_low, thres_high = args.thres_low, args.thres_high
 
+    # 加载_res.json文件
     pred_paths = [os.path.join(user_save_dir, cluster_name + '_pred.json') for user_save_dir in user_save_dirs]
     cluster_res_dirs = [os.path.join(user_save_dir, 'cluster_res', args.embedding_type) for user_save_dir in user_save_dirs]
     cluster_res_paths = [os.path.join(cluster_res_dir, cluster_name+'_res.json') for cluster_res_dir in cluster_res_dirs]
@@ -64,15 +66,18 @@ def main(args):
 
         pred_df = pd.read_json(pred_path)
         cluster_res_df = pd.read_json(cluster_res_path)
-
+        logging.info(f'加载_res.json文件到cluster_res_df:{format(cluster_res_df)}')
+        logging.info(f'加载_pred.json文件到pred_df:{format(pred_df)}')
         # ----- calculate the global frequency of each cluster on the training set -----
         total_count = cluster_res_df['count'].sum()
+        logging.info(f'所有聚类中count的累加和:{total_count}')
 
         cluster_freqs = []
         for index in range(cluster_res_df.shape[0]):
             cur_cluster_freq = cluster_res_df.iloc[index]['count'] / total_count
             cluster_freqs.append(cur_cluster_freq)
-
+        
+        logging.info(f'train_freq:每个聚类的频率(每个聚类的count/total_count):{cluster_freqs}')
         cluster_res_df['train_freq'] = cluster_freqs
         global_weights = []
 
@@ -83,6 +88,13 @@ def main(args):
             cluster_id = cur_cluster['cluster_id']
             cur_train_freq = cluster_res_df[cluster_res_df['cluster_id'] == cluster_id].iloc[0]['train_freq']
 
+            # cur_cluster['test_pred']就是预测的:
+                # "test_pred":[
+                #     {
+                #         "y_s":"2020-Q1",
+                #         "pred_freq":0.0136101262
+                #     }
+                #     ]
             test_pred = pd.DataFrame(cur_cluster['test_pred'])
             weights = []
             for index in range(test_pred.shape[0]):

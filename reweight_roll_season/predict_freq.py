@@ -82,6 +82,8 @@ def main(args):
         cluster_res_path = cluster_res_paths[index]
         target_season = target_season_list[index]
 
+        # 生成_distribution.json文件
+        # 计算的每一个freq是相对于各自时间段内的总实例数计算的
         predict_data_prepare_y_s(
             online_data_path=train_data_path, 
             user_save_dir=user_save_dir,
@@ -119,6 +121,7 @@ def main(args):
             test['floor'] = 0
 
             # model setting
+            # bsr:在Prophet模型中添加季度作为回归项
             if args.predict_method == 'bsr':
                 model = Prophet(yearly_seasonality=False)
                 seasons = ['Q1', 'Q2', 'Q3', 'Q4']
@@ -149,6 +152,14 @@ def main(args):
             global_y_true = cur_distribution['y'].values
             global_y_pred = global_pred['yhat'].values
 
+            print("cur_distribution:",cur_distribution)
+            print("global_y_true:",global_y_true)
+            print("global_y_pred:",global_y_pred)
+
+            # 计算MAE,MSE和MAE比率
+            # MAE是平均绝对误差,表示预测值和真实值之间绝对差值的平均
+            # MSE是均方误差,表示预测值与真实值之间平方差值的平均
+            # MAE比率是MAE除以真实值的平均值,表示相对误差
             train_mae = mean_absolute_error(global_y_true, global_y_pred)
             train_mse = mean_squared_error(global_y_true, global_y_pred)
             train_mae_ratio = mean_absolute_error(global_y_true, global_y_pred)/global_y_true.mean()

@@ -9,12 +9,11 @@ from sentence_transformers import models, SentenceTransformer
 from utils import get_data_paths
 import logging
 
-logging.basicConfig(level=logging.info, format='%(asctime)s - %(message)s')
-
 def main(args):
     """ Obtain News Representation With Sentence-BERT
     """
     print('========== get embeddings ==========')
+    # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', filename='output.log', filemode='a')
     model_path = args.sentence_transformer_path
     paths = get_data_paths(args)
     dataset_name = paths['dataset_name']
@@ -24,7 +23,7 @@ def main(args):
     # ========== roll seasonal single pass ==========
     for index in tqdm(range(4)):
         print('---------- season {} ----------'.format(index+1))
-        logging.info('---------- season {} ----------'.format(index+1))
+        # logging.info('---------- season {} ----------'.format(index+1))
         online_train_path = online_train_paths[index]
         user_save_dir = user_save_dirs[index]
         online_train_df = pd.read_json(online_train_path)
@@ -55,13 +54,14 @@ def main(args):
         with open(embedding_save_path, 'rb') as handle:
             pkl_data = pickle.load(handle)
 
+        # logging.info('pkl_data:{}'.format(pkl_data))
         print('embedding len:', len(pkl_data))
-        logging.info('embedding len: {}'.format(len(pkl_data)))
+        # logging.info('embedding len: {}'.format(len(pkl_data)))
         for i, val in pkl_data.items():
             print('↓ embedding dict sample ↓')
-            logging.info('↓ embedding dict sample ↓')
+            # logging.info('↓ embedding dict sample ↓')
             print('id:', i, ' single embedding shape:', val.shape)
-            logging.info('id: {} single embedding shape: {}'.format(i, val.shape))
+            # logging.info('id: {} single embedding shape: {}'.format(i, val.shape))
             break
 
 
