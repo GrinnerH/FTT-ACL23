@@ -10,13 +10,16 @@ year_type='online_bf20'
 sentence_transformer_path='/home/robot/wwh/Huggingface/hub/models--imxly--sentence_roberta_wwm_ext/'
 
 embedding_type='SBERT'
-cluster_threshold=0.6
+cluster_threshold=0.1
 predict_threshold=3
 reweight_method='sw'
 reweight_threshold=5.0
 thres_low=0.5
 thres_high=2.0
 predict_method='bsr'
+
+eps=0.5
+min_samples=4
 
 # # S1: News Representation
 # CUDA_VISIBLE_DEVICES=${gpu} python reweight_roll_season/get_embeddings.py \
@@ -33,15 +36,15 @@ predict_method='bsr'
 
 # # S2: Topic Discovery
 # python reweight_roll_season/single_pass_cluster.py \
-#     --data_name ${data_name} \
-#     --embedding_type ${embedding_type} \
-#     --cluster_threshold ${cluster_threshold} \
-#     --predict_method ${predict_method} \
-#     --predict_threshold ${predict_threshold} \
-#     --reweight_method ${reweight_method} \
-#     --reweight_threshold ${reweight_threshold} \
-#     --thres_low ${thres_low} \
-#     --thres_high ${thres_high}
+    # --data_name ${data_name} \
+    # --embedding_type ${embedding_type} \
+    # --cluster_threshold ${cluster_threshold} \
+    # --predict_method ${predict_method} \
+    # --predict_threshold ${predict_threshold} \
+    # --reweight_method ${reweight_method} \
+    # --reweight_threshold ${reweight_threshold} \
+    # --thres_low ${thres_low} \
+    # --thres_high ${thres_high}
 
 # S2: Topic Discovery Using DBSCAN Clustering
 # --eps:DBSCAN 的 eps 参数，表示一个点的邻域半径，用于控制聚类的密度。
@@ -56,8 +59,8 @@ python reweight_roll_season/DBSCAN_cluster.py \
     --reweight_threshold ${reweight_threshold} \
     --thres_low ${thres_low} \
     --thres_high ${thres_high} \
-    --eps 0.5 \  
-    --min_samples 1
+    --eps ${eps} \
+    --min_samples ${min_samples}
 
 # # S3: Temporal Distribution Modeling and Forecasting
 # python reweight_roll_season/predict_freq.py \

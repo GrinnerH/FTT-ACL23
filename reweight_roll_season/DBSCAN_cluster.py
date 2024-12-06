@@ -13,8 +13,7 @@ from utils import get_data_paths
 
 
 def res_process(cluster_res, online_path):
-    """ Process The Results Into Analyzable Format
-    """
+    """ Process The Results Into Analyzable Format """
     online_df = pd.read_json(online_path)
     cluster_view_pool, cluster_res_pool = [], []
     for cluster_id, cluster_list in tqdm(cluster_res.items()):
@@ -59,14 +58,22 @@ def res_process(cluster_res, online_path):
 
     return cluster_view_pool, cluster_res_pool
 
+def convert_keys_to_int(obj):
+    # """ Recursively convert int64 keys to int """
+    if isinstance(obj, dict):
+        return {str(key) if isinstance(key, (np.int64, np.int32)) else key: convert_keys_to_int(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_keys_to_int(item) for item in obj]
+    else:
+        return obj
+
 
 class DBSCANCluster():
-    """ DBSCAN Clustering
-    """
+    """ DBSCAN Clustering """
     def __init__(self, stopWords_path="", my_stopwords=None,
-                 eps=0.5, min_samples=1, cluster_name='DBSCAN', res_save_dir='', res_save_path="./cluster_res_ori.json"):
-        self.eps = eps  # DBSCAN radius parameter
-        self.min_samples = min_samples  # DBSCAN min samples parameter
+                 eps=0.5, min_samples=5, cluster_name='', res_save_dir='', res_save_path="./cluster_res_ori.json"):
+        self.eps = eps  # DBSCAN eps parameter
+        self.min_samples = min_samples  # DBSCAN min_samples parameter
         self.cluster_name = cluster_name
         self.res_save_dir = res_save_dir
         self.res_path = res_save_path
@@ -120,7 +127,7 @@ class DBSCANCluster():
         return cluster_res
 
     def run_dbscan(self, text_path, embedding_type, embedding_path=''):
-        """ Run DBSCAN clustering """
+        # """ Run DBSCAN clustering """
         if embedding_type == 'SBERT':
             SBERT_embeddings = self.load_SBERT_embeddings(embedding_path)
             text_embeddings = SBERT_embeddings
@@ -131,15 +138,21 @@ class DBSCANCluster():
         # Perform DBSCAN clustering
         cluster_res = self.dbscan_cluster(text_embeddings)
 
+        # Convert the cluster_res keys to int
+        cluster_res = convert_keys_to_int(cluster_res)
+
         # Process the clustering results into a more analyzable format
         cluster_view_pool, cluster_res_pool = res_process(cluster_res, text_path)
 
         # Save results to JSON files
         with open(os.path.join(self.res_save_dir, self.cluster_name+'_res.json'), "w", encoding="utf-8") as f:
-            json.dump(cluster_res, f, ensure_ascii=False)
+            json.dump(cluster_res, f, ensure_ascii=False, indent=4)
 
         pd.DataFrame(cluster_view_pool).to_json(os.path.join(self.res_save_dir, self.cluster_name+'_view.json'), indent=2, force_ascii=False, orient='records')
         pd.DataFrame(cluster_res_pool).to_json(os.path.join(self.res_save_dir, self.cluster_name+'_res.json'), indent=2, force_ascii=False, orient='records')
+
+
+
 
 
 def main(args):
@@ -152,7 +165,6 @@ def main(args):
     SBERT_embeddings_paths = [os.path.join(user_save_dir, 'SBERT_embedding.pkl') for user_save_dir in user_save_dirs]
     embedding_type = args.embedding_type
 
-    threshold_list = [args.cluster_threshold]
     print('='*60)
     print('='*20, 'embedding_type:', embedding_type, '='*20)
     cur_dir_paths = [os.path.join(user_save_dir, 'cluster_res', args.embedding_type) for user_save_dir in user_save_dirs]
@@ -168,12 +180,10 @@ def main(args):
         if not os.path.exists(cur_dir_path):
             os.makedirs(cur_dir_path)
 
-        for threshold in tqdm(threshold_list):
-            print('-' * 10, 'threshold:', threshold, '-' * 10)
-            cluster_name = embedding_type + '_' + str(threshold)
+        cluster_name = embedding_type + '_dbscan'
 
-            cluster = DBSCANCluster(eps=args.eps, min_samples=args.min_samples, cluster_name=cluster_name, res_save_dir=cur_dir_path)
-            cluster.run_dbscan(online_train_path, embedding_type, SBERT_embeddings_path)
+        cluster = DBSCANCluster(eps=args.eps, min_samples=args.min_samples, cluster_name=cluster_name, res_save_dir=cur_dir_path)
+        cluster.run_dbscan(online_train_path, embedding_type, SBERT_embeddings_path)
 
 
 if __name__ == '__main__':
@@ -182,16 +192,15 @@ if __name__ == '__main__':
     parser.add_argument("--data_name", type=str, required=True)
     parser.add_argument("--embedding_type", type=str, default='SBERT')
     parser.add_argument("--cluster_threshold", type=float, default=0.6)
-    parser.add_argument("--predict_method", type=str, default='bsr')
-    parser.add_argument("--predict_threshold", type=int, default=3)
+    parser.add_argument("--predict_method", type=str, default='ys')
+    parser.add_argument("--predict_threshold", type=int, default=30)
     parser.add_argument("--reweight_method", type=str, default='sw')
-    parser.add_argument("--reweight_threshold", type=float, default=5.0)
-    parser.add_argument("--thres_low", type=float, default=0.5)
-    parser.add_argument("--thres_high", type=float, default=2.0)
-
+    parser.add_argument("--reweight_threshold", type=float, default=1)
+    parser.add_argument("--thres_low", type=float, default=0)
+    parser.add_argument("--thres_high", type=float, default=float('inf'))
     # DBSCAN specific parameters
-    parser.add_argument("--eps", type=float, default=0.5, help="DBSCAN eps parameter (distance threshold for neighborhood)")
-    parser.add_argument("--min_samples", type=int, default=5, help="DBSCAN min_samples parameter (minimum samples for core point)")
+    parser.add_argument("--eps", type=float, default=0.5)
+    parser.add_argument("--min_samples", type=int, default=5)
 
     args = parser.parse_args()
     print(vars(args))
